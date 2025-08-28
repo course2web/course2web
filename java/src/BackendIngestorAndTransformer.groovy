@@ -252,7 +252,7 @@ for (gid in [1233971849, 1019442815, 1501128082, 827677169, 469482974, 6, 4, 3, 
         println ("c.audio: ${c.audio}");
         println ("createAudio: ${createAudio}");
         if (c.volume_boost == null) {
-          c.volume_boost = "4";
+          c.volume_boost = "2";
         }
         println ("c.volume_boost: ${c.volume_boost}");
 
@@ -280,9 +280,12 @@ for (gid in [1233971849, 1019442815, 1501128082, 827677169, 469482974, 6, 4, 3, 
             proc(["ffmpeg", "-n", "-i", origFileStr, "-acodec", "libmp3lame", "-ab", "256k",  newMp3AsOrig]);
             origFileStr = newMp3AsOrig;
           } else {
+            brokenOrigStr = origFileStr.replaceFirst(/.mp3/, "-broken.mp3")
+            "mv ${origFileStr} ${brokenOrigStr}".execute().waitFor();
+            proc(["ffmpeg", "-n", "-i", brokenOrigStr, "-acodec", "libmp3lame", "-ab", "256k",  origFileStr]);
             println ('no m4a!')
           }
-          proc(["sox", "-v", c.volume_boost, origFileStr, "-r", "24k", "-c", "1", newFileStr]);
+          proc(["sox", "-v", c.volume_boost, origFileStr, "-r", "44.1k", "-c", "1", newFileStr]);
           proc(["id3v2", "-a", "David Tedesche", "-A", seriesData.normalized_name, "-t", c.title, "-T", c.id, newFileStr]);
         }
       }
@@ -300,7 +303,7 @@ for (gid in [1233971849, 1019442815, 1501128082, 827677169, 469482974, 6, 4, 3, 
             def newFile = "build/${seriesData.normalized_name}/audio/${c.newAudio}"
             if (new File(newFile).exists()) {
               def outStr = proc("soxi ${newFile}");
-              def matcher = outStr =~ /Duration *: (.*) =/
+              def matcher = outStr =~ /Duration *: ([^ ]*) =/
               c["duration"] = matcher[0][1];
               c["length"] = proc("ls -lad ${newFile}").split(" ")[4]
               c["link2mp3"] = "/${seriesData.normalized_name}/audio/${c.newAudio}"

@@ -14,14 +14,15 @@
       <title>Sacred Art</title>
       <link>http://www.catholicpatrimony.com</link>
     </image>
+    <itunes:explicit>false</itunes:explicit>
     <itunes:owner>
       <itunes:email>dtedesche@gmail.com</itunes:email>
     </itunes:owner>
     <itunes:category text="Religion &amp; Spirituality">
-      <itunes:category text="Christian" />
+      <itunes:category text="Christianity" />
     </itunes:category>
     <itunes:keywords>Catholic Patrimony Bible Apologetics Church Fathers Liturgy</itunes:keywords>
-    <itunes:image href="http://www.catholicpatrimony.com/img/christ_hagia.jpg"/>
+    <itunes:image href="http://www.catholicpatrimony.com/img/christ_hagia-3.jpg"/>
     #if ($seriesData.description)
       <itunes:summary>${seriesData.description}</itunes:summary>
     #end
@@ -29,9 +30,12 @@
 
 #foreach( $class in $classes )
   #if ($class.audio)
+    #if( $foreach.count > 50 )
+      #break
+    #end
     <item>
       <title>${class.id}-${class.title}</title>
-      <link>http://www.catholicpatrimony.com$class.link2mp3</link>
+      <link>http://www.catholicpatrimony.com/#!/class?course=$seriesData.normalized_name</link>
       #if ($class.detail)
         <description>${class.detail}</description>
       #end
