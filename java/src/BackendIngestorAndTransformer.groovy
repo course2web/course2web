@@ -64,7 +64,7 @@ def jsonClassArr = []
 //     1501128082 - wed
 // for (gid in [469482974]) {
 //for (gid in [1]) {
-for (gid in [1233971849, 1019442815, 1501128082, 827677169, 469482974, 6, 4, 3, 2, 0, 1]) {
+for (gid in [1218728177, 1233971849, 1019442815, 1559662669, 1501128082, 827677169, 469482974, 6, 4, 3, 2, 0, 1]) {
 //for (gid in [ 1019442815]) {
   println 'gid: '+gid;
   def responseStr = null;
@@ -414,9 +414,11 @@ def runVelocity(def templateFile, def outputFile, def data) {
 }
 
 def fileNewerThan(def origFileStr, def newFileStr, def updatedDate) {
+  println "fileNewerThan: newFileStr: ${newFileStr} updatedDate: ${updatedDate}";
   def needToGen = true;
 
   def newFile = new File(newFileStr);
+  println "newFile.exists(): ${newFile.exists()}"
   def origFile = new File(origFileStr);
   if (!origFile.exists()) {
     needToGen = false;
@@ -424,6 +426,7 @@ def fileNewerThan(def origFileStr, def newFileStr, def updatedDate) {
     needToGen = false  
   }
 
+  println "needToGen: ${needToGen}"
   return needToGen;
 }
 

@@ -9,6 +9,12 @@ cpApp.controller('DailyHomiliesController', function($scope, $location, $routePa
   }
 
   $scope.yearOptions = [
+    {name : "2024", id : 2026},
+    {name : "2024", id : 2025},
+    {name : "2024", id : 2024},
+    {name : "2023", id : 2023},
+    {name : "2022", id : 2022},
+    {name : "2021", id : 2021},
     {name : "2020", id : 2020},
     {name : "2019", id : 2019},
     {name : "2018", id : 2018},
@@ -435,7 +441,7 @@ cpApp.controller('DailyHomiliesController', function($scope, $location, $routePa
       $scope.searchRelated(d);
       $scope.modalInstance = $uibModal.open({
         animation: true,
-        templateUrl: 'partials/course_specific/daily_session.html?cbp=20020112bbedci',
+        templateUrl: 'partials/course_specific/daily_session.html?cbp=20230723a704b04bbbedci',
         controller: ModalInstanceCtrl,
         size: 'lg',
         scope: $scope,

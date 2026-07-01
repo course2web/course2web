@@ -5,6 +5,8 @@
     <link>http://www.catholicpatrimony.com/</link>
     #if ($seriesData.description)
       <description>${seriesData.description}</description>
+    #else
+      <description>${seriesData.title}</description>
     #end
     <language>en-us</language>
     <webMaster>dtedesche@gmail.com (David Tedesche)</webMaster>
@@ -15,8 +17,10 @@
       <link>http://www.catholicpatrimony.com</link>
     </image>
     <itunes:explicit>false</itunes:explicit>
+    <itunes:author>Reverend David Tedesche</itunes:author>
+    <itunes:email>benanderson.us@gmail.com</itunes:email>
     <itunes:owner>
-      <itunes:email>dtedesche@gmail.com</itunes:email>
+      <itunes:email>benanderson.us@gmail.com</itunes:email>
     </itunes:owner>
     <itunes:category text="Religion &amp; Spirituality">
       <itunes:category text="Christianity" />
