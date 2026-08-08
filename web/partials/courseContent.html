@@ -1,8 +1,16 @@
 <div ng-if="sd" ng-class="'container-'+sd.normalized_name" class="container">
   <h3 ng-if="sd.normalized_name != 'daily_homilies'">{{sd.title}}</h3>
   <div style="margin-left: 20px">
-    <div ng-if="classes">Subscribe via podcast
-      <a href="/{{sd.normalized_name}}/podcast.xml">podcast</a>
+    <div ng-if="classes">Subscribe via podcast:
+      <a href="/{{sd.normalized_name}}/podcast.xml">
+        <img src="img/rss.png" width="16" />
+      </a>
+      <a ng-if="sd.spotify_url" href="{{sd.spotify_url}}">
+        <img src="img/spotify-icon.png" width="16" />
+      </a>
+      <a ng-if="sd.ipodcast_url" href="{{sd.ipodcast_url}}">
+        <img src="img/ipodcast-icon.png" width="16" />
+      </a>
       <!--
       &nbsp;|&nbsp;
       <a href="podcast://www.catholicpatrimony.com/{{sd.normalized_name}}/podcast.xml">itunes</a>.
