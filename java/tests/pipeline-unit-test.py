@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 
 JAVA_DIR = Path(__file__).resolve().parent.parent
@@ -91,6 +92,37 @@ class PipelineUnitTest(unittest.TestCase):
             with self.subTest(command=command):
                 with self.assertRaises(PIPELINE.PipelineError):
                     PIPELINE.assert_safe_command(command)
+
+    def test_publish_sets_public_read_for_legacy_website_origin(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "cp.json"
+            output.write_text("cp = []\n", encoding="utf-8")
+            digest = PIPELINE.sha256_file(output)
+            args = SimpleNamespace(
+                allow_publish=True,
+                s3_bucket="www.catholicpatrimony.com",
+                aws_region="us-east-1",
+                cloudfront_distribution_id="",
+            )
+            plan = {
+                "uploads": [
+                    {
+                        "changed": True,
+                        "localPath": str(output),
+                        "sha256": digest,
+                        "key": "cp.json",
+                        "contentType": "application/javascript",
+                        "cacheControl": "max-age=300, must-revalidate",
+                    }
+                ],
+                "cloudFrontInvalidationPaths": [],
+            }
+            commands = []
+            with mock.patch.object(
+                PIPELINE, "run_command", side_effect=lambda command: commands.append(command)
+            ):
+                PIPELINE.publish(args, plan)
+            self.assertEqual(commands[0][commands[0].index("--acl") + 1], "public-read")
 
     def test_legacy_orig_path_id_matches_by_audio(self):
         legacy = {"id": "orig/daily_homilies/audio/2019-4-23.wav", "audio": "2019-4-23.wav"}

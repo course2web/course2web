@@ -1012,6 +1012,8 @@ def publish(args: argparse.Namespace, plan: dict[str, Any]) -> None:
                 "--region",
                 args.aws_region,
                 "--only-show-errors",
+                "--acl",
+                "public-read",
                 "--content-type",
                 item["contentType"],
                 "--cache-control",

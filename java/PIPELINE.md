@@ -74,6 +74,11 @@ CloudFront paths that would be invalidated. Publish mode requires both
 single-object `aws s3 cp` calls, and invalidates only changed mutable or replaced
 paths.
 
+Uploads explicitly set the `public-read` object ACL because the current
+CloudFront distribution uses the bucket's legacy S3 website endpoint as its
+origin. Without that ACL, the website endpoint returns `403` even though the
+instance role can read the object through the S3 API.
+
 ## Non-deletion invariant
 
 The migration must not delete or move objects in Google Drive or S3. In
