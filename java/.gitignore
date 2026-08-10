@@ -3,6 +3,7 @@ go.err
 go.out
 lib
 local.properties
+pipeline.env
 orig
 orig.google_drive
 velocity.log

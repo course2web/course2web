@@ -1,68 +1,98 @@
-#!/bin/bash
-. ~/.bashrc
-#flock -n go.lockfile bash -c "echo hello" || exit 1
-# crontab
-# */5 * * * * cd /mydev/course2web/java && flock -n go.lockfile ./go.sh > ./go.out
+#!/usr/bin/env bash
 
+set -euo pipefail
 
-#while [ true ]
-#do
-  #sudo service ntp stop
-  PD1=$(pwd)
-  #cd ~/gdrive/catholic/tedesche/uploads/daily_homilies
-  #drive pull
-  cd $PD1
-  export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-  #sudo ntpdate ntp.ubuntu.com
-  date;
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/pipeline-common.sh
+source "${script_dir}/scripts/pipeline-common.sh"
 
-  # this is not preserving the timestamp
-  #cp -puR /google_drive/catholic/tedesche/uploads/* ./orig
-  #rsync -rt ~/gdrive/catholic/tedesche/uploads/daily_homilies ./orig
-cmd.exe --% /c copy  'g:\My Drive\catholic\tedesche\uploads\daily_homilies\audio' 'C:\dev\daily_homilies\audio'
-cmd.exe --% /c copy  'g:\My Drive\catholic\tedesche\uploads\daily_homilies\docs' 'C:\dev\daily_homilies\docs'
-cmd.exe --% /c copy  'g:\My Drive\catholic\tedesche\uploads\misc\audio' 'C:\dev\misc\audio'
-cmd.exe --% /c copy  'g:\My Drive\catholic\tedesche\uploads\st_joseph_novena\audio' 'C:\dev\st_joseph_novena\audio'
-cmd.exe --% /c copy  'g:\My Drive\catholic\tedesche\uploads\magnificat_humanitas\audio' 'C:\dev\magnificat_humanitas\audio'
-  rsync -rt /mnt/c/dev/daily_homilies/audio ./orig/daily_homilies
-  rsync -rt /mnt/c/dev/daily_homilies/docs ./orig/daily_homilies
-  rsync -rt /mnt/c/dev/misc/audio ./orig/misc
-  rsync -rt /mnt/c/dev/st_joseph_novena/audio ./orig/st_joseph_novena
-  rsync -rt /mnt/c/dev/magnificat_humanitas/audio ./orig/magnificat_humanitas
-  #rsync -rt /google_drive/catholic/tedesche/uploads/Sunday_Homilies ./orig
-  #rsync -rt /google_drive/catholic/tedesche/uploads/wednesday_night_talks ./orig
-  #rsync -rt /google_drive/catholic/tedesche/uploads/adult_education ./orig
+print_usage() {
+  cat <<'EOF'
+Usage: ./go.sh [options]
 
-  # run groovy
-  # ant groovy; 
-  #groovy -cp 'lib/*' src/test.groovy
-  mv lib/groovy/lib/groovy-1.7.11.jar  lib/groovy/lib/groovy-1.7.11.jar.bak 2> /dev/null
-  groovy -cp 'lib/*' src/BackendIngestorAndTransformer.groovy
-  # groovy -cp 'lib/*' src/test.groovy
-  #groovy -v
-  
-  if [ $? -eq 0 ]; then
-    date;
-    s3cmd -P sync build/daily_homilies/ s3://www.catholicpatrimony.com/daily_homilies/
-    s3cmd -P sync build/misc/ s3://www.catholicpatrimony.com/misc/
-    s3cmd -P sync build/st_joseph_novena/ s3://www.catholicpatrimony.com/st_joseph_novena/
-    s3cmd -P sync build/magnificat_humanitas/ s3://www.catholicpatrimony.com/magnificat_humanitas/
-    #s3cmd -P sync build/Sunday_Homilies/ s3://www.catholicpatrimony.com/Sunday_Homilies/
-    #s3cmd -P sync build/wednesday_night_talks/ s3://www.catholicpatrimony.com/wednesday_night_talks/
-    #s3cmd -P sync build/adult_education/ s3://www.catholicpatrimony.com/adult_education/
-    s3cmd sync --add-header=Cache-Control:no-cache -P --guess-mime-type ../web/cp.json s3://www.catholicpatrimony.com/
+Options:
+  --mode MODE                 dry-run, process, or publish
+  --process-not-before DATE   Earliest eligible date (YYYY-MM-DD)
+  --config FILE               Optional pipeline environment file
+  --allow-publish             Required in addition to publish mode
+  --help                      Show this help
+
+Phase 1 intentionally enables configuration validation only. Processing and
+publishing are added in Phase 2 after the current behavior is captured by tests.
+EOF
+}
+
+config_file="${PIPELINE_CONFIG_FILE:-${script_dir}/pipeline.env}"
+declare -a cli_args=("$@")
+
+# Find the config path before loading values. Other CLI arguments are applied
+# afterward and therefore take precedence over the file.
+arg_index=0
+while ((arg_index < ${#cli_args[@]})); do
+  if [[ "${cli_args[$arg_index]}" == "--config" ]]; then
+    ((arg_index + 1 < ${#cli_args[@]})) || die "--config requires a file"
+    config_file="${cli_args[$((arg_index + 1))]}"
+    ((arg_index += 2))
   else
-    echo "failed - don't sync"
+    ((arg_index += 1))
   fi
-  date;
+done
 
-  # push latest to www.catholicpatrimony.com
+load_pipeline_config "${config_file}"
 
-  date;
+run_mode="${RUN_MODE:-dry-run}"
+process_not_before="${PROCESS_NOT_BEFORE:-2026-08-04}"
+allow_publish="${ALLOW_PUBLISH:-false}"
 
-#  sleep 1200;
-#done
+arg_index=0
+while ((arg_index < ${#cli_args[@]})); do
+  case "${cli_args[$arg_index]}" in
+    --mode)
+      ((arg_index + 1 < ${#cli_args[@]})) || die "--mode requires a value"
+      run_mode="${cli_args[$((arg_index + 1))]}"
+      ((arg_index += 2))
+      ;;
+    --process-not-before)
+      ((arg_index + 1 < ${#cli_args[@]})) || die "--process-not-before requires a date"
+      process_not_before="${cli_args[$((arg_index + 1))]}"
+      ((arg_index += 2))
+      ;;
+    --config)
+      ((arg_index += 2))
+      ;;
+    --allow-publish)
+      allow_publish="true"
+      ((arg_index += 1))
+      ;;
+    --help|-h)
+      print_usage
+      exit 0
+      ;;
+    --delete|--delete-*|delete|rm|rmdir|move|purge|trash)
+      die "deletion-capable argument is forbidden: ${cli_args[$arg_index]}"
+      ;;
+    *)
+      die "unknown argument: ${cli_args[$arg_index]}"
+      ;;
+  esac
+done
 
-# when you change web stuff
-#find ../web/ -name \*.js -o -name \*.html | xargs sed -i 's/cbp=......../cbp=20020704b/g'
-#s3cmd -P sync ../web/ s3://www.catholicpatrimony.com/
+validate_run_mode "${run_mode}"
+validate_iso_date "${process_not_before}"
+
+printf 'run_mode=%s\n' "${run_mode}"
+printf 'process_not_before=%s\n' "${process_not_before}"
+
+case "${run_mode}" in
+  dry-run)
+    printf 'external_writes=disabled\n'
+    printf 'status=phase-1-configuration-only\n'
+    ;;
+  process)
+    die "process mode is not enabled until Phase 2"
+    ;;
+  publish)
+    is_true "${allow_publish}" || die "publish mode requires --allow-publish or ALLOW_PUBLISH=true"
+    die "publish mode is not enabled until Phase 2"
+    ;;
+esac

@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "fa4aec8d930985da9a8d96d88efac1df1ab52869",
+  "cpJson": {
+    "assignmentPrefix": "cp = ",
+    "seriesCount": 13,
+    "classCount": 1458,
+    "audioClassCount": 1451,
+    "linkedAudioClassCount": 1434,
+    "seriesNames": [
+      "magnificat_humanitas",
+      "adult_education",
+      "book_of_revelation",
+      "st_joseph_novena",
+      "wednesday_night_talks",
+      "uncovering_2015",
+      "daily_homilies",
+      "misc",
+      "Bible_Study_Economy_of_Salvation",
+      "test",
+      "apologetics",
+      "new_mass_translation",
+      "uncovering_riches"
+    ]
+  },
+  "podcast": {
+    "maximumTemplateIterations": 50,
+    "requiresLocalGeneratedAudio": true,
+    "guidUsesGeneratedAudioLink": true,
+    "duplicatesPodcastAsPodcast2": true
+  }
+}
