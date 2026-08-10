@@ -1,8 +1,9 @@
 # Course2Web processing pipeline
 
-This branch is migrating the legacy workstation loop to a gated EC2 pipeline.
-Until the migration reaches its supervised publish phase, `go.sh` defaults to
-`dry-run` and refuses both processing and publishing.
+This branch migrates the legacy workstation loop to a gated EC2 pipeline.
+`go.sh` defaults to `dry-run`, which may read the published Google Sheet, copy
+eligible Google Drive inputs into local work storage, and read S3 metadata. It
+does not upload to S3 or invalidate CloudFront.
 
 ## Captured legacy behavior
 
@@ -39,8 +40,36 @@ $ ./go.sh
 run_mode=dry-run
 process_not_before=2026-08-04
 external_writes=disabled
-status=phase-1-configuration-only
 ```
+
+Use `./go.sh --config-check` to validate configuration without performing even
+the read-only external calls.
+
+## Snapshot and cutoff behavior
+
+Run `scripts/capture-baseline.sh` to copy the current `cp.json` and podcast XML
+files from S3 into the local ignored `runtime/baseline` directory. It does not
+download historical media. A refresh first preserves the prior local snapshot
+under `runtime/state/snapshots`.
+
+Rows whose `date` and `updated_on` are both earlier than
+`PROCESS_NOT_BEFORE` retain their baseline JSON objects exactly. Eligible rows
+are merged by stable ID and may update generated metadata. Existing podcast XML
+is treated as a snapshot: eligible items are prepended or replaced by GUID,
+older item blocks and channel formatting are retained, and the feed is capped
+at 50 items.
+
+Audio is converted with `ffmpeg` into a temporary output and atomically renamed
+inside the local work directory. Source files are never renamed or modified.
+
+## Publication
+
+Dry runs write `runtime/state/run-plan.json`. The plan lists every candidate
+object, content hash, whether it differs from S3, cache metadata, and the exact
+CloudFront paths that would be invalidated. Publish mode requires both
+`--mode publish` and `--allow-publish`, revalidates output hashes, uploads with
+single-object `aws s3 cp` calls, and invalidates only changed mutable or replaced
+paths.
 
 ## Non-deletion invariant
 

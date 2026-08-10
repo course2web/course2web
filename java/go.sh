@@ -15,10 +15,8 @@ Options:
   --process-not-before DATE   Earliest eligible date (YYYY-MM-DD)
   --config FILE               Optional pipeline environment file
   --allow-publish             Required in addition to publish mode
+  --config-check              Validate and print configuration without running
   --help                      Show this help
-
-Phase 1 intentionally enables configuration validation only. Processing and
-publishing are added in Phase 2 after the current behavior is captured by tests.
 EOF
 }
 
@@ -43,6 +41,7 @@ load_pipeline_config "${config_file}"
 run_mode="${RUN_MODE:-dry-run}"
 process_not_before="${PROCESS_NOT_BEFORE:-2026-08-04}"
 allow_publish="${ALLOW_PUBLISH:-false}"
+config_check="false"
 
 arg_index=0
 while ((arg_index < ${#cli_args[@]})); do
@@ -64,6 +63,10 @@ while ((arg_index < ${#cli_args[@]})); do
       allow_publish="true"
       ((arg_index += 1))
       ;;
+    --config-check)
+      config_check="true"
+      ((arg_index += 1))
+      ;;
     --help|-h)
       print_usage
       exit 0
@@ -83,16 +86,57 @@ validate_iso_date "${process_not_before}"
 printf 'run_mode=%s\n' "${run_mode}"
 printf 'process_not_before=%s\n' "${process_not_before}"
 
-case "${run_mode}" in
-  dry-run)
-    printf 'external_writes=disabled\n'
-    printf 'status=phase-1-configuration-only\n'
-    ;;
-  process)
-    die "process mode is not enabled until Phase 2"
-    ;;
-  publish)
-    is_true "${allow_publish}" || die "publish mode requires --allow-publish or ALLOW_PUBLISH=true"
-    die "publish mode is not enabled until Phase 2"
-    ;;
-esac
+if [[ "${run_mode}" == "publish" ]]; then
+  is_true "${allow_publish}" || die "publish mode requires --allow-publish or ALLOW_PUBLISH=true"
+  printf 'external_writes=enabled-after-validation\n'
+else
+  printf 'external_writes=disabled\n'
+fi
+
+if is_true "${config_check}"; then
+  printf 'status=configuration-valid\n'
+  exit 0
+fi
+
+resolve_path() {
+  local value="$1"
+  if [[ "${value}" == /* ]]; then
+    printf '%s' "${value}"
+  else
+    printf '%s/%s' "${script_dir}" "${value#./}"
+  fi
+}
+
+work_dir="$(resolve_path "${WORK_DIR:-./runtime/work}")"
+state_dir="$(resolve_path "${STATE_DIR:-./runtime/state}")"
+baseline_dir="$(resolve_path "${BASELINE_DIR:-./runtime/baseline}")"
+input_mode="${INPUT_MODE:-local}"
+input_root="${INPUT_ROOT:-}"
+
+pipeline_args=(
+  --mode "${run_mode}"
+  --process-not-before "${process_not_before}"
+  --work-dir "${work_dir}"
+  --state-dir "${state_dir}"
+  --baseline-dir "${baseline_dir}"
+  --input-mode "${input_mode}"
+  --rclone-remote "${GOOGLE_DRIVE_REMOTE:-course2web-drive}"
+  --rclone-uploads-path "${GOOGLE_DRIVE_UPLOADS_PATH:-My Drive/catholic/tedesche/uploads}"
+  --active-series "${ACTIVE_SERIES:-daily_homilies,misc,st_joseph_novena,magnificat_humanitas}"
+  --s3-bucket "${S3_BUCKET:-www.catholicpatrimony.com}"
+  --aws-region "${AWS_REGION:-us-east-1}"
+  --cloudfront-distribution-id "${CLOUDFRONT_DISTRIBUTION_ID:-}"
+)
+
+if [[ "${input_mode}" == "local" ]]; then
+  [[ -n "${input_root}" ]] || die "INPUT_ROOT is required when INPUT_MODE=local"
+  pipeline_args+=(--input-root "$(resolve_path "${input_root}")")
+fi
+if is_true "${CHECK_AWS:-false}"; then
+  pipeline_args+=(--check-aws)
+fi
+if [[ "${run_mode}" == "publish" ]]; then
+  pipeline_args+=(--allow-publish)
+fi
+
+exec python3 "${script_dir}/pipeline.py" "${pipeline_args[@]}"

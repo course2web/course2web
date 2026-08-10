@@ -6,3 +6,4 @@ tests_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 "${tests_dir}/current-behavior-test.sh"
 "${tests_dir}/pipeline-config-test.sh"
+python3 "${tests_dir}/pipeline-unit-test.py"

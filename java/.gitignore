@@ -1,9 +1,11 @@
 build
+__pycache__
 go.err
 go.out
 lib
 local.properties
 pipeline.env
+runtime
 orig
 orig.google_drive
 velocity.log
