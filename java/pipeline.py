@@ -948,6 +948,7 @@ def build_upload_plan(args: argparse.Namespace, output_paths: list[Path]) -> lis
         if not path.is_file():
             continue
         key = output_key(args, path)
+        sha256 = sha256_file(path)
         baseline_path = baseline_path_for(args, key)
         mutable = path.name in {"cp.json", "podcast.xml", "podcast-2.xml"}
         remote_exists = baseline_path.exists()
@@ -961,7 +962,11 @@ def build_upload_plan(args: argparse.Namespace, output_paths: list[Path]) -> lis
             remote_exists = head is not None
             if head:
                 etag = str(head.get("ETag", "")).strip('"')
-                if "-" not in etag and etag == md5_file(path):
+                remote_sha256 = str(head.get("Metadata", {}).get("course2web-sha256", ""))
+                if remote_sha256 == sha256:
+                    changed = False
+                    reason = "remote-sha256-match"
+                elif "-" not in etag and etag == md5_file(path):
                     changed = False
                     reason = "remote-md5-match"
                 else:
@@ -975,7 +980,7 @@ def build_upload_plan(args: argparse.Namespace, output_paths: list[Path]) -> lis
                 changed=changed,
                 remote_exists=remote_exists,
                 reason=reason,
-                sha256=sha256_file(path),
+                sha256=sha256,
                 size=path.stat().st_size,
             )
         )

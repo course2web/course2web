@@ -124,6 +124,27 @@ class PipelineUnitTest(unittest.TestCase):
                 PIPELINE.publish(args, plan)
             self.assertEqual(commands[0][commands[0].index("--acl") + 1], "public-read")
 
+    def test_upload_plan_uses_sha256_metadata_for_multipart_object(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            output = root / "out" / "daily_homilies" / "audio" / "test.mp3"
+            output.parent.mkdir(parents=True)
+            output.write_bytes(b"audio data")
+            digest = PIPELINE.sha256_file(output)
+            args = SimpleNamespace(
+                work_dir=root,
+                baseline_dir=root / "baseline",
+                check_aws=True,
+            )
+            head = {
+                "ETag": '"multipart-etag-2"',
+                "Metadata": {"course2web-sha256": digest},
+            }
+            with mock.patch.object(PIPELINE, "aws_head", return_value=head):
+                uploads = PIPELINE.build_upload_plan(args, [output])
+            self.assertFalse(uploads[0].changed)
+            self.assertEqual(uploads[0].reason, "remote-sha256-match")
+
     def test_legacy_orig_path_id_matches_by_audio(self):
         legacy = {"id": "orig/daily_homilies/audio/2019-4-23.wav", "audio": "2019-4-23.wav"}
         current = {"audio": "2019-4-23.wav"}
