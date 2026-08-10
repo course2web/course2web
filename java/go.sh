@@ -121,7 +121,7 @@ pipeline_args=(
   --baseline-dir "${baseline_dir}"
   --input-mode "${input_mode}"
   --rclone-remote "${GOOGLE_DRIVE_REMOTE:-course2web-drive}"
-  --rclone-uploads-path "${GOOGLE_DRIVE_UPLOADS_PATH:-My Drive/catholic/tedesche/uploads}"
+  --rclone-uploads-path "${GOOGLE_DRIVE_UPLOADS_PATH:-catholic/tedesche/uploads}"
   --active-series "${ACTIVE_SERIES:-daily_homilies,misc,st_joseph_novena,magnificat_humanitas}"
   --s3-bucket "${S3_BUCKET:-www.catholicpatrimony.com}"
   --aws-region "${AWS_REGION:-us-east-1}"

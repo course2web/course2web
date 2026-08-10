@@ -1118,7 +1118,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--input-mode", choices=("local", "rclone"), default="local")
     parser.add_argument("--input-root", type=Path)
     parser.add_argument("--rclone-remote", default="course2web-drive")
-    parser.add_argument("--rclone-uploads-path", default="My Drive/catholic/tedesche/uploads")
+    parser.add_argument("--rclone-uploads-path", default="catholic/tedesche/uploads")
     parser.add_argument("--active-series", default=",".join(DEFAULT_ACTIVE_SERIES))
     parser.add_argument("--s3-bucket", default="www.catholicpatrimony.com")
     parser.add_argument("--aws-region", default="us-east-1")

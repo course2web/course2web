@@ -35,6 +35,9 @@ Configuration is applied in this order, from lowest to highest precedence:
 Copy `pipeline.env.example` to `pipeline.env` for machine-local values. The
 real file is ignored by Git.
 
+For rclone, the remote root already represents Google “My Drive,” so
+`GOOGLE_DRIVE_UPLOADS_PATH` begins with `catholic/` rather than `My Drive/`.
+
 ```console
 $ ./go.sh
 run_mode=dry-run
