@@ -79,6 +79,29 @@ CloudFront distribution uses the bucket's legacy S3 website endpoint as its
 origin. Without that ACL, the website endpoint returns `403` even though the
 instance role can read the object through the S3 API.
 
+After an entirely successful publication and invalidation, the processor
+atomically advances only its local `cp.json` and podcast XML baselines. This
+prevents the next scheduled run from republishing the same mutable objects.
+Remote source and destination files are never moved or deleted.
+
+## Scheduled EC2 execution
+
+The checked-in systemd timer waits two minutes after each completed run before
+starting another. Systemd does not overlap a still-running oneshot service.
+Install it on the EC2 instance with:
+
+```console
+$ sudo java/scripts/install-systemd-timer.sh
+```
+
+Useful inspection commands are:
+
+```console
+$ systemctl list-timers course2web-pipeline.timer
+$ sudo systemctl status course2web-pipeline.service
+$ sudo journalctl -u course2web-pipeline.service -n 200 --no-pager
+```
+
 ## Non-deletion invariant
 
 The migration must not delete or move objects in Google Drive or S3. In

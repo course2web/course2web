@@ -145,6 +145,40 @@ class PipelineUnitTest(unittest.TestCase):
             self.assertFalse(uploads[0].changed)
             self.assertEqual(uploads[0].reason, "remote-sha256-match")
 
+    def test_successful_publish_advances_only_local_mutable_baseline(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            cp_output = root / "out" / "cp.json"
+            audio_output = root / "out" / "series" / "audio" / "new.mp3"
+            cp_output.parent.mkdir(parents=True)
+            audio_output.parent.mkdir(parents=True)
+            cp_output.write_text("cp = [new]\n", encoding="utf-8")
+            audio_output.write_bytes(b"audio")
+            baseline = root / "baseline"
+            baseline.mkdir()
+            (baseline / "cp.json").write_text("cp = [old]\n", encoding="utf-8")
+            plan = {
+                "uploads": [
+                    {
+                        "changed": True,
+                        "key": "cp.json",
+                        "localPath": str(cp_output),
+                        "sha256": PIPELINE.sha256_file(cp_output),
+                    },
+                    {
+                        "changed": True,
+                        "key": "series/audio/new.mp3",
+                        "localPath": str(audio_output),
+                        "sha256": PIPELINE.sha256_file(audio_output),
+                    },
+                ]
+            }
+            PIPELINE.advance_baseline_after_publish(
+                SimpleNamespace(baseline_dir=baseline), plan
+            )
+            self.assertEqual((baseline / "cp.json").read_bytes(), cp_output.read_bytes())
+            self.assertFalse((baseline / "series" / "audio" / "new.mp3").exists())
+
     def test_legacy_orig_path_id_matches_by_audio(self):
         legacy = {"id": "orig/daily_homilies/audio/2019-4-23.wav", "audio": "2019-4-23.wav"}
         current = {"audio": "2019-4-23.wav"}

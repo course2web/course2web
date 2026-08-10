@@ -1,0 +1,28 @@
+[Unit]
+Description=Course2Web media publishing pipeline
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=admin
+Group=admin
+WorkingDirectory=/home/admin/course2web/java
+Environment=HOME=/home/admin
+Environment=RCLONE_CONFIG=/home/admin/.config/rclone/rclone.conf
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/admin/course2web/java/go.sh --mode publish --allow-publish
+UMask=0077
+Nice=10
+TimeoutStartSec=90min
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=read-only
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+ReadWritePaths=/home/admin/course2web/java/runtime /home/admin/.config/rclone
+RestrictSUIDSGID=true
+

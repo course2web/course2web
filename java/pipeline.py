@@ -1044,6 +1044,18 @@ def publish(args: argparse.Namespace, plan: dict[str, Any]) -> None:
         )
 
 
+def advance_baseline_after_publish(args: argparse.Namespace, plan: dict[str, Any]) -> None:
+    """Advance only local mutable snapshots after every remote write succeeded."""
+    mutable_names = {"cp.json", "podcast.xml", "podcast-2.xml"}
+    for item in plan["uploads"]:
+        if not item["changed"] or Path(item["key"]).name not in mutable_names:
+            continue
+        source = Path(item["localPath"])
+        if sha256_file(source) != item["sha256"]:
+            raise PipelineError(f"file changed before baseline advancement: {source}")
+        atomic_copy(source, args.baseline_dir / item["key"])
+
+
 def save_json(path: Path, value: Any) -> None:
     atomic_write_text(path, json.dumps(value, indent=2, sort_keys=True) + "\n")
 
@@ -1118,6 +1130,7 @@ def run_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         if validation_problems:
             raise PipelineError("refusing to publish because output validation failed")
         publish(args, plan)
+        advance_baseline_after_publish(args, plan)
     return plan
 
 

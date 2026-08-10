@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Course2Web publishing two minutes after the previous run
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=2min
+AccuracySec=10s
+Unit=course2web-pipeline.service
+
+[Install]
+WantedBy=timers.target
+
