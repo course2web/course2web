@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 
 JAVA_DIR = Path(__file__).resolve().parent.parent
@@ -143,6 +144,21 @@ class PipelineUnitTest(unittest.TestCase):
         self.assertIn("<title>old</title>", merged)
         self.assertLess(merged.index("20260804-New"), merged.index("<title>old</title>"))
         PIPELINE.ET.fromstring(merged)
+
+    def test_legacy_placeholder_guid_is_not_treated_as_new_duplicate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            work = Path(temporary)
+            (work / "out" / "misc").mkdir(parents=True)
+            (work / "out" / "cp.json").write_text("cp = []", encoding="utf-8")
+            (work / "out" / "misc" / "podcast.xml").write_text(
+                """<rss><channel>
+<item><guid>http://www.catholicpatrimony.com$class.link2mp3</guid></item>
+<item><guid>http://www.catholicpatrimony.com$class.link2mp3</guid></item>
+</channel></rss>""",
+                encoding="utf-8",
+            )
+            args = SimpleNamespace(work_dir=work, active_series=["misc"])
+            self.assertEqual(PIPELINE.validate_outputs(args, []), [])
 
 
 if __name__ == "__main__":

@@ -892,7 +892,14 @@ def validate_outputs(args: argparse.Namespace, merged: list[dict[str, Any]]) -> 
         except ET.ParseError as error:
             problems.append({"type": "invalid-podcast-xml", "series": name, "error": str(error)})
             continue
-        guids = [item.text for item in root.findall("./channel/item/guid")]
+        # Grandfather malformed Velocity placeholders already present in an
+        # untouched baseline feed. Newly rendered items always have concrete
+        # links; only concrete duplicate GUIDs should block publication.
+        guids = [
+            item.text
+            for item in root.findall("./channel/item/guid")
+            if item.text and "$" not in item.text
+        ]
         duplicates = sorted({guid for guid in guids if guids.count(guid) > 1})
         if duplicates:
             problems.append({"type": "duplicate-podcast-guid", "series": name, "guids": duplicates})
