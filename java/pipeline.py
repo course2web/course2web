@@ -33,6 +33,7 @@ from zoneinfo import ZoneInfo
 
 SHEET_KEY = "0AkWmZX8HtwWHdENUNFcxdG9XdzBTaWhlVkZ0RU1QcXc"
 SHEET_GIDS = [
+    20261011,
     1218728177,
     1233971849,
     1019442815,
@@ -48,6 +49,7 @@ SHEET_GIDS = [
     1,
 ]
 DEFAULT_ACTIVE_SERIES = [
+    "ocia_enrichment_2026_2027",
     "daily_homilies",
     "misc",
     "st_joseph_novena",

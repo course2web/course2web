@@ -65,6 +65,16 @@ at 50 items.
 Audio is converted with `ffmpeg` into a temporary output and atomically renamed
 inside the local work directory. Source files are never renamed or modified.
 
+## OCIA Enrichment 2026-2027
+
+The `12-OCIA-Enrichment-2026-2027` source tab (gid `20261011`) supplies
+the Classes menu entry `OCIA Enrichment 2026-2027`. Its normalized name is
+`ocia_enrichment_2026_2027`, which must be included in `ACTIVE_SERIES`.
+Upload recordings into
+`catholic/tedesche/uploads/ocia_enrichment_2026_2027/audio` and reference their
+exact filenames in the tab's `audio` column. Use `YYYY-MM-DD` for `updated_on`.
+The first recording is `2026-10-11.2.m4a`, listed as `Session One`.
+
 ## Publication
 
 Dry runs write `runtime/state/run-plan.json`. The plan lists every candidate
