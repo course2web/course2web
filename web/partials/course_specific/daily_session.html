@@ -81,22 +81,6 @@
       </div>
     </div>
     <br />
-    <span ng-if="!show_disqus">
-      <!--
-      <a ng-click="show_disqus = true;">show comments</a>
-      -->
-      <a ng-if="c.title" href="javascript:void(null);" ng-click="showComments()">show comments</a>
-    </span>
-    <span ng-if="show_disqus">
-      <dir-disqus config="disqusConfig"></dir-disqus>
-      
-      <dir-disqus disqus-shortname="catholicpatrimony"
-           disqus-identifier="{{ myDisqus_identifier }}"
-           disqus-title="{{ myDisqus_title }}"
-           disqus-url="{{ myDisqus_url }}"
-           ready-to-bind="{{ myDisqus_contentLoaded }}">
-      </dir-disqus>
-    </span>
     <br />
     <br />
   </div>
