@@ -11,6 +11,9 @@
       <a ng-if="sd.ipodcast_url" href="{{sd.ipodcast_url}}">
         <img src="img/ipodcast-icon.png" width="16" />
       </a>
+      <span ng-if="sd.normalized_name == 'ocia_enrichment_2026_2027' && !sd.ipodcast_url" aria-disabled="true" title="Apple Podcasts — coming soon" style="display: inline-block; opacity: 0.4; filter: grayscale(100%); cursor: default">
+        <img src="img/ipodcast-icon.png" width="16" alt="Apple Podcasts — coming soon" />
+      </span>
       <!--
       &nbsp;|&nbsp;
       <a href="podcast://www.catholicpatrimony.com/{{sd.normalized_name}}/podcast.xml">itunes</a>.
