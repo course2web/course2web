@@ -2,11 +2,11 @@
   <h3 ng-if="sd.normalized_name != 'daily_homilies'">{{sd.title}}</h3>
   <div style="margin-left: 20px">
     <div ng-if="classes">Subscribe via podcast:
-      <a href="/{{sd.normalized_name}}/podcast.xml">
-        <img src="img/rss.png" width="16" />
+      <a href="/{{sd.normalized_name}}/podcast.xml" title="Subscribe via RSS" aria-label="Subscribe via RSS">
+        <img src="img/rss.png" width="16" alt="RSS" />
       </a>
-      <a ng-if="sd.spotify_url" href="{{sd.spotify_url}}">
-        <img src="img/spotify-icon.png" width="16" />
+      <a ng-if="sd.spotify_url" href="{{sd.spotify_url}}" title="Listen on Spotify" aria-label="Listen on Spotify">
+        <img src="img/spotify-icon.png" width="16" alt="Spotify" />
       </a>
       <a ng-if="sd.ipodcast_url" href="{{sd.ipodcast_url}}">
         <img src="img/ipodcast-icon.png" width="16" />
