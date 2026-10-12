@@ -19,12 +19,10 @@
       -->
       
     </div>
-  <p ng-if="sd.normalized_name == 'ocia_enrichment_2026_2027'" style="margin-top: 10px">
-    Submitted to Spotify on October 12, 2026. Spotify may take up to 24 hours to make the podcast available, so the Spotify link may not work until October 13, 2026.
-  </p>
-  <p ng-if="sd.normalized_name == 'ocia_enrichment_2026_2027'">
-    Submitted to Apple Podcasts on October 12, 2026. Apple is still processing the podcast before it can be published. The Apple Podcasts link will be added once it is available.
-  </p>
+  <div ng-if="sd.normalized_name == 'ocia_enrichment_2026_2027'" role="note" style="margin: 14px 0; padding: 12px 16px; max-width: 700px; background: #f4f7fa; border-left: 3px solid #64839b; border-radius: 4px; line-height: 1.5">
+    <strong>Podcast availability</strong><br />
+    This new podcast was submitted to Spotify and Apple Podcasts on October 12. Spotify may be available by October 13; Apple is still processing, and its link will be added when ready. This initial setup is needed only once—future episodes will appear automatically as each service refreshes the feed. You can listen here now.
+  </div>
   <p ng-if="sd.gdoc_above_classes" ng-include="trustSrc(sd.gdoc_above_classes)" onload="gdoc_loaded();"></p>
   <p ng-if="sd.customTemplate" ng-include="'partials/course_specific/' + sd.normalized_name + '.html?cbp=20230723a704b04bbbedci'">{{sd.normalized_name}}.html</p>
 
