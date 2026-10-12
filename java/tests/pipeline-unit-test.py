@@ -197,6 +197,8 @@ class PipelineUnitTest(unittest.TestCase):
         }
         xml = PIPELINE.podcast_xml({"seriesData": self.series_data, "classes": [row]})
         root = PIPELINE.ET.fromstring(xml)
+        artwork = root.find("./channel/{http://www.itunes.com/dtds/podcast-1.0.dtd}image")
+        self.assertEqual(artwork.get("href"), "https://www.catholicpatrimony.com/img/christ_hagia-3.jpg")
         guid = root.find("./channel/item/guid")
         self.assertIsNotNone(guid)
         self.assertEqual(
@@ -229,6 +231,7 @@ class PipelineUnitTest(unittest.TestCase):
         )
         self.assertIn("<title>Existing formatting</title>", merged)
         self.assertIn("<title>old</title>", merged)
+        self.assertIn('<itunes:image href="https://www.catholicpatrimony.com/img/christ_hagia-3.jpg"/>', merged)
         self.assertLess(merged.index("20260804-New"), merged.index("<title>old</title>"))
         PIPELINE.ET.fromstring(merged)
 

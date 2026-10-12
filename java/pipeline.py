@@ -715,6 +715,9 @@ def podcast_xml(series: dict[str, Any]) -> str:
     add_text(image, "url", "https://www.catholicpatrimony.com/img/restoring.jpg")
     add_text(image, "title", "Sacred Art")
     add_text(image, "link", "https://www.catholicpatrimony.com")
+    ET.SubElement(channel, f"{{{itunes}}}image", {
+        "href": "https://www.catholicpatrimony.com/img/christ_hagia-3.jpg"
+    })
     add_text(channel, f"{{{itunes}}}explicit", "false")
     add_text(channel, f"{{{itunes}}}author", "Reverend David Tedesche")
     add_text(channel, f"{{{itunes}}}email", "benanderson.us@gmail.com")
@@ -805,6 +808,13 @@ def html_escape(value: str, *, quote: bool = False) -> str:
 
 
 def merge_podcast_snapshot(baseline_text: str, series: dict[str, Any], cutoff: dt.date) -> str:
+    # Older generated feeds omitted the Apple-required show artwork.
+    if "<itunes:image" not in baseline_text:
+        baseline_text = baseline_text.replace(
+            "</channel>",
+            '<itunes:image href="https://www.catholicpatrimony.com/img/christ_hagia-3.jpg"/>\n</channel>',
+            1,
+        )
     item_pattern = re.compile(r"(?ms)^\s*<item>.*?</item>")
     matches = list(item_pattern.finditer(baseline_text))
     existing_blocks = [match.group(0).strip("\n") for match in matches]
