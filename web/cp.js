@@ -13,7 +13,7 @@ var cpApp = angular.module('cpApp', ['ngRoute', 'ngSanitize', 'angularUtils.dire
       .when('/class', {
         reloadOnSearch: false,
         controller:'ClassController',
-        templateUrl:'partials/courseContent.html?cbp=20230723a704b04bbbedci'
+        templateUrl:'partials/courseContent.html?cbp=20261012-spotify-note'
       })
       .when('/session', {
         reloadOnSearch: false,
