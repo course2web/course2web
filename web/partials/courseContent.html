@@ -8,8 +8,8 @@
       <a ng-if="sd.spotify_url" href="{{sd.spotify_url}}" title="Listen on Spotify" aria-label="Listen on Spotify">
         <img src="img/spotify-icon.png" width="16" alt="Spotify" />
       </a>
-      <a ng-if="sd.ipodcast_url" href="{{sd.ipodcast_url}}">
-        <img src="img/ipodcast-icon.png" width="16" />
+      <a ng-if="sd.ipodcast_url" href="{{sd.ipodcast_url}}" title="Listen on Apple Podcasts" aria-label="Listen on Apple Podcasts">
+        <img src="img/ipodcast-icon.png" width="16" alt="Apple Podcasts" />
       </a>
       <span ng-if="sd.normalized_name == 'ocia_enrichment_2026_2027' && !sd.ipodcast_url" aria-disabled="true" title="Apple Podcasts — coming soon" style="display: inline-block; opacity: 0.4; filter: grayscale(100%); cursor: default">
         <img src="img/ipodcast-icon.png" width="16" alt="Apple Podcasts — coming soon" />
@@ -22,10 +22,6 @@
       -->
       
     </div>
-  <div ng-if="sd.normalized_name == 'ocia_enrichment_2026_2027'" role="note" style="margin: 14px 0; padding: 12px 16px; max-width: 700px; background: #f4f7fa; border-left: 3px solid #64839b; border-radius: 4px; line-height: 1.5">
-    <strong>Podcast availability</strong><br />
-    This new podcast was submitted to Spotify and Apple Podcasts on October 12. Spotify may be available by October 13; Apple is still processing, and its link will be added when ready. This initial setup is needed only once—future episodes will appear automatically as each service refreshes the feed. You can listen here now.
-  </div>
   <p ng-if="sd.gdoc_above_classes" ng-include="trustSrc(sd.gdoc_above_classes)" onload="gdoc_loaded();"></p>
   <p ng-if="sd.customTemplate" ng-include="'partials/course_specific/' + sd.normalized_name + '.html?cbp=20230723a704b04bbbedci'">{{sd.normalized_name}}.html</p>
 
